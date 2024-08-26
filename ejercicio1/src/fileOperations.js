@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 // Ruta al archivo JSON donde se guardan los personajes
-const filePath = path.resolve('C:/Users/Win11/Desktop/tp-repaso/ejercicio1/data/personajes.json');
+const filePath = path.resolve('C:/Users/Win11/trabajo-practico-repaso-js/ejercicio1/data/personajes.json');
 
 // Ejercicio 1.3: Función para guardar personajes en el archivo JSON
 export function saveCharacters(characters) {

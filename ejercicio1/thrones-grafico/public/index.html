@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Api Game of Throne</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Api Game of Throne</h1> 
+    
+    <div class="buttons">
+        <button id="fetch-ned-stark">Mostrar el Personaje “Ned Stark”</button>
+        <button id="fetch-all-characters">Obtener todos los personajes</button>
+        <button id="fetch-stark-family">Mostrar la familia de la Casa Stark</button>
+        <button id="add-character">Agregar personaje</button>
+        <button id="remove-characters">Eliminar Personajes con ID mayores a 25</button>
+    </div>
+
+    <div class="result" id="result"></div>
+
+    <script>
+        function renderCharacter(character) {
+            return `
+                <div class="character">
+                    <img src="${character.imageUrl || 'https://via.placeholder.com/150'}" alt="${character.fullName}">
+                    <h3>${character.fullName}</h3>
+                    <p><strong>Id:</strong> ${character.id}</p>
+                    <p><strong>Nombre:</strong> ${character.firstName}</p>
+                    <p><strong>Familia:</strong> ${character.family}</p>
+                    <p><strong>Titulo:</strong> ${character.title}</p>
+                </div>
+            `;
+        }
+
+        function renderCharacters(characters) {
+            if (characters.length === 0) {
+                return '<p>No characters found.</p>';
+            }
+            return characters.map(renderCharacter).join('');
+        }
+
+        document.getElementById('fetch-ned-stark').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/ned-stark');
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                const data = await response.json();
+                document.getElementById('result').innerHTML = renderCharacter(data);
+            } catch (error) {
+                document.getElementById('result').textContent = 'Error: ' + error.message;
+            }
+        });
+
+        document.getElementById('fetch-all-characters').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/all-characters');
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                const data = await response.json();
+                document.getElementById('result').innerHTML = renderCharacters(data);
+            } catch (error) {
+                document.getElementById('result').textContent = 'Error: ' + error.message;
+            }
+        });
+
+        document.getElementById('fetch-stark-family').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/stark-family');
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                const data = await response.json();
+                document.getElementById('result').innerHTML = renderCharacters(data);
+            } catch (error) {
+                document.getElementById('result').textContent = 'Error: ' + error.message;
+            }
+        });
+
+        document.getElementById('add-character').addEventListener('click', async () => {
+            try {
+                const newCharacter = {
+                    id: 101,
+                    fullName: 'Nuevo Personaje',
+                    family: 'Stark',
+                    title: 'Lord',
+                    imageUrl: 'https://via.placeholder.com/150'
+                };
+                const response = await fetch('/api/add-character', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newCharacter)
+                });
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                const data = await response.json();
+                document.getElementById('result').innerHTML = renderCharacter(data);
+            } catch (error) {
+                document.getElementById('result').textContent = 'Error: ' + error.message;
+            }
+        });
+
+        document.getElementById('remove-characters').addEventListener('click', async () => {
+    try {
+        const response = await fetch('/api/remove-characters', { method: 'DELETE' });
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        
+        const data = await response.json();
+        
+        // Verificar que removedIds esté definido
+        const removedIds = data.removedIds || [];
+        
+        // Crear el mensaje de eliminación grande y centrado
+        let resultHTML = `<div class="message">${data.message}</div>`;
+
+        // Mostrar los personajes restantes
+        resultHTML += renderCharacters(data.remainingCharacters);
+        
+        document.getElementById('result').innerHTML = resultHTML;
+    } catch (error) {
+        document.getElementById('result').textContent = 'Error: ' + error.message;
+    }
+});
+
+    </script>
+</body>
+</html>
